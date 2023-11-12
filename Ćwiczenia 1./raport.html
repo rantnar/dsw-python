@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Prosta Analiza Zbioru Danych Statystycznych</title>
+        <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+        
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="prosta-analiza-zbioru-danych-statystycznych">Prosta Analiza Zbioru Danych Statystycznych</h1>
+<h1 id="zadanie">Zadanie</h1>
+<ol>
+<li>Pobierz zbiór danych ze strony <a href="https://www.stats.govt.nz/assets/Uploads/Annual-enterprise-survey/Annual-enterprise-survey-2021-financial-year-provisional/Download-data/annual-enterprise-survey-2021-financial-year-provisional-size-bands-csv.csv">Statistics New Zealand</a>.</li>
+<li>Zapoznaj się ze strukturą i zawartością zbioru danych.</li>
+<li>Przeanalizuj dwa dostarczone kody źródłowe wykonujące analizę danych - jedną z użyciem pętli, drugą z użyciem list comprehensions.</li>
+<li>Uruchom oba programy i porównaj wyniki.</li>
+<li>Zmodyfikuj programy wyciągając obliczanie średniej do funkcji <code>calculate_average</code></li>
+<li>Dodaj funkcję <code>calculate_median</code> według przykładu i jej użyj w programach</li>
+<li>Wymyśl dodatkową analizę oraz rozbuduj programy - jaką pozostawiaj Twojej inwencji</li>
+<li>Przygotuj raport zawierający twoje spostrzeżenia, uzyskane wyniki oraz przygotowane kody źródłowe.</li>
+</ol>
+<h1 id="kod-programu">Kod programu</h1>
+<pre><code class="language-python"><span class="hljs-keyword">import</span> csv
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate_average</span>(<span class="hljs-params">values</span>):
+    total_sales = <span class="hljs-built_in">sum</span>(values)
+    count = <span class="hljs-built_in">len</span>(values)
+    <span class="hljs-keyword">return</span> total_sales / count <span class="hljs-keyword">if</span> count <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate_median</span>(<span class="hljs-params">values</span>):
+    sorted_values = <span class="hljs-built_in">sorted</span>(values)
+    n = <span class="hljs-built_in">len</span>(sorted_values)
+    <span class="hljs-keyword">if</span> n % <span class="hljs-number">2</span> == <span class="hljs-number">1</span>:
+        <span class="hljs-keyword">return</span> sorted_values[n // <span class="hljs-number">2</span>]
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-keyword">return</span> (sorted_values[n // <span class="hljs-number">2</span> - <span class="hljs-number">1</span>] + sorted_values[n // <span class="hljs-number">2</span>]) / <span class="hljs-number">2</span>
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">lowest_sum</span>(<span class="hljs-params">yearly_sums</span>):
+    min_year = <span class="hljs-built_in">min</span>(yearly_sums, key=yearly_sums.get)
+    <span class="hljs-keyword">return</span> min_year, yearly_sums[min_year]
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">analyze_data</span>(<span class="hljs-params">filename</span>):
+    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(filename, <span class="hljs-string">&quot;r&quot;</span>, encoding=<span class="hljs-string">&#x27;utf-8-sig&#x27;</span>) <span class="hljs-keyword">as</span> file:
+        reader = csv.DictReader(file)
+        values = []
+        yearly_sums = {}
+        <span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> reader:
+            <span class="hljs-keyword">if</span> (
+                row[<span class="hljs-string">&quot;variable&quot;</span>] == <span class="hljs-string">&quot;Sales, government funding, grants and subsidies&quot;</span>
+                <span class="hljs-keyword">and</span> row[<span class="hljs-string">&quot;unit&quot;</span>] == <span class="hljs-string">&quot;DOLLARS(millions)&quot;</span>
+                <span class="hljs-keyword">and</span> row[<span class="hljs-string">&quot;value&quot;</span>] != <span class="hljs-string">&quot;C&quot;</span>
+            ):
+                year = row[<span class="hljs-string">&quot;year&quot;</span>]
+                value = <span class="hljs-built_in">float</span>(row[<span class="hljs-string">&quot;value&quot;</span>])
+                values.append(value)
+                <span class="hljs-keyword">if</span> year <span class="hljs-keyword">in</span> yearly_sums:
+                    yearly_sums[year] += value
+                <span class="hljs-keyword">else</span>:
+                    yearly_sums[year] = value
+        average_sales = calculate_average(values)
+        median_sales = calculate_median(values)
+        min_year = lowest_sum(yearly_sums)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Average Sales: <span class="hljs-subst">{average_sales}</span>&quot;</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Median Sales: <span class="hljs-subst">{median_sales}</span>&quot;</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Year with lowest sum of sales: <span class="hljs-subst">{min_year}</span>&quot;</span>)
+        
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">main</span>():
+    analyze_data(<span class="hljs-string">&quot;data.csv&quot;</span>)
+
+<span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:
+    main()
+</code></pre>
+<h2 id="opis-funkcji">Opis funkcji</h2>
+<ol>
+<li>calculate_average - Ta funkcja oblicza średnią wartość z listy liczb</li>
+</ol>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate_average</span>(<span class="hljs-params">values</span>):
+    total_sales = <span class="hljs-built_in">sum</span>(values)
+    count = <span class="hljs-built_in">len</span>(values)
+    <span class="hljs-keyword">return</span> total_sales / count <span class="hljs-keyword">if</span> count <span class="hljs-keyword">else</span> <span class="hljs-number">0</span>
+</code></pre>
+<ol start="2">
+<li>calculate_median - Ta funkcja liczy mediane (średnią wartość) z listy liczb</li>
+</ol>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">calculate_median</span>(<span class="hljs-params">values</span>):
+    sorted_values = <span class="hljs-built_in">sorted</span>(values)
+    n = <span class="hljs-built_in">len</span>(sorted_values)
+    <span class="hljs-keyword">if</span> n % <span class="hljs-number">2</span> == <span class="hljs-number">1</span>:
+        <span class="hljs-keyword">return</span> sorted_values[n // <span class="hljs-number">2</span>]
+    <span class="hljs-keyword">else</span>:
+        <span class="hljs-keyword">return</span> (sorted_values[n // <span class="hljs-number">2</span> - <span class="hljs-number">1</span>] + sorted_values[n // <span class="hljs-number">2</span>]) / <span class="hljs-number">2</span>
+</code></pre>
+<ol start="3">
+<li>lowest_sum - Ta funkcja znajduje rok z najniższą sumą sprzedaży.</li>
+</ol>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">lowest_sum</span>(<span class="hljs-params">yearly_sums</span>):
+    min_year = <span class="hljs-built_in">min</span>(yearly_sums, key=yearly_sums.get)
+    <span class="hljs-keyword">return</span> min_year, yearly_sums[min_year]
+</code></pre>
+<h2 id="opis-działania-kodu">Opis działania kodu</h2>
+<p>Na podstawie stworzonej wcześniej funkcji 'analyze_data_with_loops' utworzyłem funkcje analyze_data:</p>
+<pre><code class="language-python"><span class="hljs-keyword">def</span> <span class="hljs-title function_">analyze_data</span>(<span class="hljs-params">filename</span>):
+    <span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(filename, <span class="hljs-string">&quot;r&quot;</span>, encoding=<span class="hljs-string">&#x27;utf-8-sig&#x27;</span>) <span class="hljs-keyword">as</span> file:
+        reader = csv.DictReader(file)
+        values = []
+        yearly_sums = {}
+        <span class="hljs-keyword">for</span> row <span class="hljs-keyword">in</span> reader:
+            <span class="hljs-keyword">if</span> (
+                row[<span class="hljs-string">&quot;variable&quot;</span>] == <span class="hljs-string">&quot;Sales, government funding, grants and subsidies&quot;</span>
+                <span class="hljs-keyword">and</span> row[<span class="hljs-string">&quot;unit&quot;</span>] == <span class="hljs-string">&quot;DOLLARS(millions)&quot;</span>
+                <span class="hljs-keyword">and</span> row[<span class="hljs-string">&quot;value&quot;</span>] != <span class="hljs-string">&quot;C&quot;</span>
+            ):
+                year = row[<span class="hljs-string">&quot;year&quot;</span>]
+                value = <span class="hljs-built_in">float</span>(row[<span class="hljs-string">&quot;value&quot;</span>])
+                values.append(value)
+                <span class="hljs-keyword">if</span> year <span class="hljs-keyword">in</span> yearly_sums:
+                    yearly_sums[year] += value
+                <span class="hljs-keyword">else</span>:
+                    yearly_sums[year] = value
+        average_sales = calculate_average(values)
+        median_sales = calculate_median(values)
+        min_year = lowest_sum(yearly_sums)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Average Sales: <span class="hljs-subst">{average_sales}</span>&quot;</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Median Sales: <span class="hljs-subst">{median_sales}</span>&quot;</span>)
+        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Year with lowest sum of sales: <span class="hljs-subst">{min_year}</span>&quot;</span>)
+</code></pre>
+<p>Jest to główna funkcja analizująca dane sprzedaży z pliku CSV.</p>
+<p>Otwiera ona plik CSV, inicjalizuje listę values i słownik early_sums</p>
+<ul>
+<li>
+<p>values przechowuje wszystkie wartości sprzedaży spełniające określone warunki</p>
+</li>
+<li>
+<p>yearly_sums przechowuje sumy sprzedaży dla każdego roku.</p>
+</li>
+</ul>
+<p>Pętla for sprawdza każy wiersz pliku CSV. Warunkami są:</p>
+<ul>
+<li>wiersz &quot;variable&quot; musi się równać &quot;Sales, government funding, grants and subsidies&quot;</li>
+<li>wiersz &quot;unit&quot; równa się &quot;DOLLARS(millions)</li>
+<li>wiersz &quot;value&quot; nie wynosi &quot;C&quot;</li>
+</ul>
+<p>Gdy te warunki są spełnione:</p>
+<ul>
+<li>Pobieram rok i wartość z wiersza oraz dodajemy ją do listy values</li>
+<li>Dodajemy rok do słownika yearly_sums. Jeżeli rok już istnieje dodajemy do niego wartość. Jeżeli rok nie istnieje dodawany jest nowy rok z początkową sumą.</li>
+</ul>
+<p>Po przejściu przez wszystkie wiersze wywoływane są funkcję calculate_average, calculate_median, lowest_sum oraz wywoływane są na ekran wyniki tych funkcji.</p>
+<p>Dla kodu powyżej dla danych z pliku CSV wynikami są:</p>
+<pre><code>Average Sales: 9836.639388979815
+Median Sales: 1797.0
+Year with lowest sum of sales: ('2011', 1339267.0)
+</code></pre>
+
+        
+        
+    </body>
+    </html>
