@@ -1,4 +1,3 @@
-
 def count_words(file):
     words = {}
     for line in file:
