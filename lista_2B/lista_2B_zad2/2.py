@@ -1,6 +1,3 @@
-#Napisz funkcję, która wczytuje liczbę od użytkownika i oblicza jej silnię.
-#Obsłuż wyjątki dla ujemnych wartości oraz nieprawidłowych danych wejściowych.
-
 def factorial(n):
     if n < 0:
         raise ValueError("Liczba musi być dodatnia")
