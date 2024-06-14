@@ -1,7 +1,8 @@
-import liczby_zespolone
-import kryptografia
-import grafy
-import wyszukiwanie_tekstowe as wt
+from lista_1C_zad1 import liczby_zespolone
+from lista_1C_zad2 import kryptografia
+from lista_1C_zad3 import liczby_zespolone
+from lista_1C_zad4 import grafy
+from lista_1C_zad5 import wyszukiwanie_tekstowe as wt
 
 a = complex(1, 2)  # 1 + 2i
 b = complex(3, 4)  # 3 + 4i
